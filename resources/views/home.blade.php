@@ -18,7 +18,7 @@
 
                     <form id="form" action="{{ route('uploadZip') }}" method="post" enctype="multipart/form-data">
                         <meta name="csrf-token" content="{{ csrf_token() }}">
-                        <input id="uploadImage" type="file" name="image" />
+                        <input id="uploadImage" type="file" name="zip" />
                         <input class="btn btn-success" type="submit" value="Upload">
                     </form>
                             <div id="err"></div>
