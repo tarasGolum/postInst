@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Psy\Exception\ErrorException;
 
 class AjaxController extends Controller
@@ -13,10 +14,11 @@ class AjaxController extends Controller
   public function uploadZip(Request $request)
   {
     try {
+     $this->isFileValid($request);
+
 
     $zipFile = $request->file('zip');
-    $aa = $request->file('zip')->getFilename();
-    $a = $request->allFiles();
+    $zipFileName = $request->file('zip')->getFilename();
 
     if (!Storage::disk()->makeDirectory(self::STORAGE_FOLDER))
       throw new ErrorException('Cant create folder');
@@ -29,6 +31,24 @@ class AjaxController extends Controller
     } catch (ErrorException $e) {
       return response()->json([$e->getMessage()]);
     }
+  }
+
+  /**
+   * @param Request $request
+   *
+   * @return bool
+   */
+  private function isFileValid(Request $request): bool
+  {
+    $rules    = ['zip' => 'required|file|mimes:zip'];
+    $messages = [
+      'file'  => 'The :file must be a file.', // wtf
+      'mimes' => 'The file type must be zip.',
+    ];
+
+    $validator = Validator::make([$request->file('zip')], $rules, $messages);
+
+    return $validator->fails();
   }
 
 }
