@@ -3,52 +3,68 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Psy\Exception\ErrorException;
+use Whoops\Util\TemplateHelper;
 
 class AjaxController extends Controller
 {
-  const STORAGE_FOLDER = 'files';
+  const STORAGE_FOLDER      = 'files';
+  const ALLOWED_FILE_FORMAT = 'zip';
 
   public function uploadZip(Request $request)
   {
     try {
-     $this->isFileValid($request);
+      $zipFile = $request->file('zip');
 
+      $this->manageDirectory($zipFile);
+      Storage::disk('local')->put(self::STORAGE_FOLDER, $zipFile, 'private');
+      $this->extractFiles($zipFile);
 
-    $zipFile = $request->file('zip');
-    $zipFileName = $request->file('zip')->getFilename();
-
-    if (!Storage::disk()->makeDirectory(self::STORAGE_FOLDER))
-      throw new ErrorException('Cant create folder');
-
-      $path = storage_path('files');
-
-      $a = Storage::disk('local')->put(self::STORAGE_FOLDER, $zipFile, 'private');
-
-    return response()->json(['Archive uploaded to the storage']);
+      return response()->json(['Archive uploaded to the storage']);
     } catch (ErrorException $e) {
       return response()->json([$e->getMessage()]);
     }
   }
 
   /**
-   * @param Request $request
+   * @param UploadedFile $zipFile
    *
-   * @return bool
+   * @return void
+   * @throws ErrorException
    */
-  private function isFileValid(Request $request): bool
+  private function manageDirectory(UploadedFile $zipFile): void
   {
-    $rules    = ['zip' => 'required|file|mimes:zip'];
-    $messages = [
-      'file'  => 'The :file must be a file.', // wtf
-      'mimes' => 'The file type must be zip.',
-    ];
+    if ($zipFile->getClientOriginalExtension() !== self::ALLOWED_FILE_FORMAT)
+      throw new ErrorException('File extension must be zip');
 
-    $validator = Validator::make([$request->file('zip')], $rules, $messages);
+    if (!Storage::disk()->makeDirectory(self::STORAGE_FOLDER))
+      throw new ErrorException('Cant create folder');
 
-    return $validator->fails();
+    if (!empty(Storage::disk('local')->files(self::STORAGE_FOLDER)))
+      throw new ErrorException('Storage folder not empty');
+  }
+
+  /**
+   * @param UploadedFile $zipFile
+   *
+   * @return void
+   * @throws ErrorException
+   */
+  private function extractFiles(UploadedFile $zipFile): void
+  {
+    $zip      = new \ZipArchive();
+    $filePath = storage_path('app/' . self::STORAGE_FOLDER) . '/' . $zipFile->hashName();
+
+    $zipOpened = $zip->open($filePath);
+
+    if (!$zipOpened)
+      throw new ErrorException('Cant open zip file');
+
+    $zip->extractTo(storage_path('app/' . self::STORAGE_FOLDER));
+    $zip->close();
+    unlink($filePath);
   }
 
 }
