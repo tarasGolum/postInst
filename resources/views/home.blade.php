@@ -14,20 +14,18 @@
                             </div>
                         @endif
 
-                        You are logged in!
-
-                    <form id="form" action="{{ route('uploadZip') }}" method="post" enctype="multipart/form-data">
-                        <meta name="csrf-token" content="{{ csrf_token() }}">
-                        <input id="uploadImage" type="file" name="zip" />
-                        <input class="btn btn-success" type="submit" value="Upload">
-                    </form>
+                        <div class="uploadForm">
+                            <form id="form" action="{{ route('uploadZip') }}" method="post"
+                                  enctype="multipart/form-data">
+                                <meta name="csrf-token" content="{{ csrf_token() }}">
+                                <input id="uploadImage" type="file" name="zip"/>
+                                <input class="btn btn-success" type="submit" value="Upload">
+                            </form>
                             <div id="err"></div>
-{{--                    <div class="uploadZipForm">--}}
-{{--                        Zip archive:--}}
-{{--                        <br />--}}
-{{--                        <input id="zipArchive" type="file" name="zip" />--}}
-{{--                        <br /><br />--}}
-{{--                        <button id ="uploadZip">Save</button>--}}
+                        </div>
+
+                        <a href="{{route('postImage')}}">Run action</a>
+
                     </div>
                 </div>
             </div>
@@ -36,7 +34,7 @@
 
     <script>
         $(document).ready(function () {
-            $("#form").on('submit',(function(e) {
+            $("#form").on('submit', (function (e) {
                 e.preventDefault();
                 let file = new FormData(this);
                 $.ajax({
@@ -48,26 +46,20 @@
                     data: new FormData(this),
                     contentType: false,
                     cache: false,
-                    processData:false,
-                    beforeSend : function()
-                    {
+                    processData: false,
+                    beforeSend: function () {
                         //$("#preview").fadeOut();
                         $("#err").fadeOut();
                     },
-                    success: function(data)
-                    {
-                        if(data === 'invalid')
-                        {
+                    success: function (data) {
+                        if (data === 'invalid') {
                             // invalid file format.
                             $("#err").html("Invalid File !").fadeIn();
-                        }
-                        else
-                        {
-                           $("#err").html(data).fadeIn();
+                        } else {
+                            $("#err").html(data).fadeIn();
                         }
                     },
-                    error: function(e)
-                    {
+                    error: function (e) {
                         $("#err").html(e).fadeIn();
                     }
                 });

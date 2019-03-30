@@ -6,11 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Psy\Exception\ErrorException;
-use Whoops\Util\TemplateHelper;
 
 class AjaxController extends Controller
 {
-  const STORAGE_FOLDER      = 'files';
   const ALLOWED_FILE_FORMAT = 'zip';
 
   public function uploadZip(Request $request)
@@ -54,17 +52,19 @@ class AjaxController extends Controller
    */
   private function extractFiles(UploadedFile $zipFile): void
   {
-    $zip      = new \ZipArchive();
-    $filePath = storage_path('app/' . self::STORAGE_FOLDER) . '/' . $zipFile->hashName();
+    $filePath      = storage_path('app/' . self::STORAGE_FOLDER) . '/' . $zipFile->hashName();
+    $directoryPath = storage_path('app/' . self::STORAGE_FOLDER);
 
-    $zipOpened = $zip->open($filePath);
+    $zip = new \ZipArchive();
 
-    if (!$zipOpened)
+    if (!$zip->open($filePath))
       throw new ErrorException('Cant open zip file');
 
-    $zip->extractTo(storage_path('app/' . self::STORAGE_FOLDER));
+    $zip->extractTo($directoryPath);
     $zip->close();
+
     unlink($filePath);
+    chmod($directoryPath, 0755);
   }
 
 }

@@ -58,6 +58,14 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
     display: block
 }
 
+.uploadForm {
+    padding: 14px;
+}
+
+#uploadImage {
+    padding-bottom: 13px;
+}
+
 body {
     margin: 0;
     font-family: Nunito, sans-serif;
