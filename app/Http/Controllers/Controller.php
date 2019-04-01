@@ -12,6 +12,4 @@ class Controller extends BaseController
 
   use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-  const STORAGE_FOLDER = 'files';
-
 }

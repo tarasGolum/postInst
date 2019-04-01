@@ -20,5 +20,3 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::any('/uploadZip', 'AjaxController@uploadZip')->name('uploadZip');
-
-Route::get('/postImage', 'HomeController@postImage')->name('postImage');

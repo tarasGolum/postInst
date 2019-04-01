@@ -23,9 +23,6 @@
                             </form>
                             <div id="err"></div>
                         </div>
-
-                        <a href="{{route('postImage')}}">Run action</a>
-
                     </div>
                 </div>
             </div>
